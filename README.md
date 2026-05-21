@@ -29,10 +29,10 @@ A browser-based retro snake game with a modern pixel aesthetic. No login require
 
 - **3 lives** — fatal collisions cost 1 life and respawn you at center (score kept); game over when all lives are lost
 - Brief **invulnerability** after respawn so you don't die instantly again
-- **Heart pickups** occasionally appear on empty cells; eating one restores 1 life (max 3)
+- **Heart pickups** appear more often when below max lives (~every 22 s); eating one restores 1 life (max 3)
 - **Falling mushrooms** drop from the top of the grid; eating one shrinks your snake by 1 segment
 - Mushroom at length 1 costs 1 life (same as an evil body hit at length 1)
-- **Bomb pickups** briefly appear on empty cells (~30 ticks); player eating one kills all evil snakes
+- **Bomb pickups** appear on empty cells roughly every ~30 s and last ~4.5 s (~30 ticks); player eating one kills all evil snakes
 - Evil snake eating a bomb removes it without dying; untouched bombs expire
 - Lives shown as hearts in the HUD; dedicated SFX for heart, mushroom, life lost, and bomb detonation
 
@@ -44,8 +44,8 @@ A browser-based retro snake game with a modern pixel aesthetic. No login require
 | Avoid evil | Your head touching any evil segment costs 1 life |
 | Use evil against itself | Lure it into its own body — it dies and respawns |
 | Punish body hits | Evil head on your body kills evil and shrinks you by 1 segment |
-| Grab hearts | Restore 1 life when below 3 (hearts spawn occasionally) |
-| Grab bombs | Kill all evil snakes before the bomb expires (~30 ticks) |
+| Grab hearts | Restore 1 life when below 3 (hearts spawn more often when injured) |
+| Grab bombs | Kill all evil snakes before the bomb expires (~4.5 s) |
 | Dodge mushrooms | Falling mushrooms shrink you by 1; at length 1 they cost 1 life |
 
 ## Collision rules

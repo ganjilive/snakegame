@@ -17,12 +17,12 @@ export const MAX_EVIL_SNAKES = 4;
 
 export const MAX_LIVES = 3;
 export const INVULNERABLE_TICKS = 4;
-export const HEART_SPAWN_INTERVAL = 120;
-export const HEART_SPAWN_CHANCE = 0.25;
+export const HEART_SPAWN_INTERVAL = 60;
+export const HEART_SPAWN_CHANCE = 0.4;
 export const MUSHROOM_SPAWN_INTERVAL = 100;
 export const MAX_MUSHROOMS = 2;
-export const BOMB_SPAWN_INTERVAL = 150;
-export const BOMB_SPAWN_CHANCE = 0.2;
+export const BOMB_SPAWN_INTERVAL = 80;
+export const BOMB_SPAWN_CHANCE = 0.4;
 export const BOMB_LIFETIME_TICKS = 30;
 
 export const DIRECTIONS = {
