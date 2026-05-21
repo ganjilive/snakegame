@@ -126,7 +126,7 @@ Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
 ### Mobile (touch)
 
-On screens 767px wide or narrower, the game fills the phone screen with on-screen controls:
+On touch devices (coarse pointer) or screens 767px wide or narrower, the game fills the phone screen with on-screen controls:
 
 | Action | Effect |
 |---|---|
@@ -134,6 +134,8 @@ On screens 767px wide or narrower, the game fills the phone screen with on-scree
 | RESTART button | Restart after game over |
 | On-screen D-pad | Move |
 | SOUND button | Toggle mute |
+
+**Troubleshooting:** Mobile UI is detected via touch capability and screen width. If controls are missing on a phone, open the browser menu and disable **Desktop site** (Chrome) or request the mobile version of the page.
 
 ## Project structure
 

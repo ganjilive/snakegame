@@ -24,6 +24,8 @@ import {
   isMuted,
 } from './audio.js';
 
+const MOBILE_UI_QUERY = '(max-width: 767px), (hover: none) and (pointer: coarse)';
+
 const canvas = document.getElementById('game-canvas');
 const startScreen = document.getElementById('start-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
@@ -56,6 +58,27 @@ const KEY_MAP = {
   d: 'RIGHT',
   D: 'RIGHT',
 };
+
+function updateMobileUIClass() {
+  document.documentElement.classList.toggle(
+    'mobile-ui',
+    window.matchMedia(MOBILE_UI_QUERY).matches
+  );
+}
+
+function bindTap(el, handler) {
+  let lastFire = 0;
+  const fire = (e) => {
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastFire < 300) return;
+    lastFire = now;
+    handler(e);
+  };
+  el.addEventListener('pointerdown', fire);
+  el.addEventListener('touchstart', fire, { passive: false });
+  el.addEventListener('click', fire);
+}
 
 function updateHud() {
   scoreDisplay.textContent = `SCORE: ${game.score}`;
@@ -197,11 +220,6 @@ function onKeyDown(e) {
   }
 }
 
-function onDpadPointerDown(e) {
-  e.preventDefault();
-  handleDirectionInput(e.currentTarget.dataset.dir);
-}
-
 function gameLoop(timestamp) {
   const delta = timestamp - lastFrameTime;
   lastFrameTime = timestamp;
@@ -229,19 +247,23 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+updateMobileUIClass();
+window.addEventListener('resize', updateMobileUIClass);
+window.matchMedia(MOBILE_UI_QUERY).addEventListener('change', updateMobileUIClass);
+
 updateHud();
 updateMuteButton();
 resetGame(game);
 render(renderer, game);
 window.addEventListener('keydown', onKeyDown);
 muteBtn.addEventListener('click', handleMuteToggle);
-startBtn.addEventListener('click', () => {
+bindTap(startBtn, () => {
   if (game.state === 'start') beginGame();
 });
-restartBtn.addEventListener('click', () => {
+bindTap(restartBtn, () => {
   if (game.state === 'gameover') restartGame();
 });
 dpadButtons.forEach((btn) => {
-  btn.addEventListener('pointerdown', onDpadPointerDown);
+  bindTap(btn, () => handleDirectionInput(btn.dataset.dir));
 });
 requestAnimationFrame(gameLoop);
