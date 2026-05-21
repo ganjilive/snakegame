@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Snake</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="device-frame">
+      <div class="hud">
+        <span id="score-display">SCORE: 0</span>
+        <span id="high-score-display">HI: 0</span>
+      </div>
+      <div class="canvas-container">
+        <canvas id="game-canvas" width="400" height="400"></canvas>
+        <div id="start-screen" class="overlay">
+          <h1>RETRO SNAKE</h1>
+          <p class="blink">PRESS ANY KEY TO START</p>
+          <p class="hint">ARROWS / WASD TO MOVE</p>
+          <p class="hint">M TO MUTE</p>
+        </div>
+        <div id="gameover-screen" class="overlay hidden">
+          <h2>GAME OVER</h2>
+          <p id="final-score">SCORE: 0</p>
+          <p id="new-high-score" class="hidden">NEW HIGH SCORE!</p>
+          <p class="blink">PRESS R TO RESTART</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
