@@ -21,6 +21,9 @@ export const HEART_SPAWN_INTERVAL = 120;
 export const HEART_SPAWN_CHANCE = 0.25;
 export const MUSHROOM_SPAWN_INTERVAL = 100;
 export const MAX_MUSHROOMS = 2;
+export const BOMB_SPAWN_INTERVAL = 150;
+export const BOMB_SPAWN_CHANCE = 0.2;
+export const BOMB_LIFETIME_TICKS = 30;
 
 export const DIRECTIONS = {
   UP: { x: 0, y: -1 },
@@ -51,12 +54,15 @@ export function createGame() {
     nextDirection: 'RIGHT',
     frog: null,
     heart: null,
+    bomb: null,
     mushrooms: [],
     score: 0,
     lives: MAX_LIVES,
     frogPulse: 0,
     heartPulse: 0,
+    bombPulse: 0,
     heartSpawnTimer: HEART_SPAWN_INTERVAL,
+    bombSpawnTimer: BOMB_SPAWN_INTERVAL,
     mushroomSpawnTimer: MUSHROOM_SPAWN_INTERVAL,
     invulnerableTicks: 0,
     tickInterval: BASE_INTERVAL,
@@ -106,6 +112,7 @@ function getAllOccupied(game, excludeEvilId = null) {
   });
   if (game.frog) occupied.add(`${game.frog.x},${game.frog.y}`);
   if (game.heart) occupied.add(`${game.heart.x},${game.heart.y}`);
+  if (game.bomb) occupied.add(`${game.bomb.x},${game.bomb.y}`);
   game.mushrooms.forEach((m) => occupied.add(`${m.x},${m.y}`));
   return occupied;
 }
@@ -222,6 +229,34 @@ function trySpawnMushroom(game) {
   }
 }
 
+function spawnBomb(game) {
+  if (game.bomb) return;
+  const empty = getEmptyCells(game);
+  if (empty.length === 0) return;
+  const cell = empty[Math.floor(Math.random() * empty.length)];
+  game.bomb = { x: cell.x, y: cell.y, ticksRemaining: BOMB_LIFETIME_TICKS };
+  game.bombPulse = 1;
+}
+
+function trySpawnBomb(game) {
+  if (game.bomb) return;
+  game.bombSpawnTimer -= 1;
+  if (game.bombSpawnTimer <= 0) {
+    game.bombSpawnTimer = BOMB_SPAWN_INTERVAL;
+    if (Math.random() < BOMB_SPAWN_CHANCE) {
+      spawnBomb(game);
+    }
+  }
+}
+
+function updateBomb(game) {
+  if (!game.bomb) return;
+  game.bomb.ticksRemaining -= 1;
+  if (game.bomb.ticksRemaining <= 0) {
+    game.bomb = null;
+  }
+}
+
 function computeHead(segment, direction) {
   const d = DIRECTIONS[direction];
   return { x: wrapCoord(segment.x + d.x), y: wrapCoord(segment.y + d.y) };
@@ -281,8 +316,10 @@ export function tick(game) {
   }
 
   updateMushrooms(game);
+  updateBomb(game);
   trySpawnMushroom(game);
   trySpawnHeart(game);
+  trySpawnBomb(game);
 
   const aliveEvils = game.evilSnakes.filter((e) => e.alive);
   for (const evil of aliveEvils) {
@@ -310,6 +347,16 @@ export function tick(game) {
     (m) => m.x === playerHead.x && m.y === playerHead.y,
   );
 
+  let playerAteBomb =
+    game.bomb &&
+    playerHead.x === game.bomb.x &&
+    playerHead.y === game.bomb.y;
+
+  const evilAteBombId =
+    !playerAteBomb && game.bomb
+      ? evilMoves.find(({ head }) => head.x === game.bomb.x && head.y === game.bomb.y)?.evil.id ?? null
+      : null;
+
   const evilAteFrogMap = new Map();
   if (!playerAteFrog && game.frog) {
     for (const { evil, head } of evilMoves) {
@@ -324,6 +371,7 @@ export function tick(game) {
   let playerShrink = false;
   const evilsToKill = new Set();
   const evilsToRespawn = new Set();
+  const evilsKilledByBomb = new Set();
   const invulnerable = game.invulnerableTicks > 0;
 
   if (mushroomHitIndex >= 0) {
@@ -436,6 +484,18 @@ export function tick(game) {
     return events.length ? { events } : { event: 'loseLife' };
   }
 
+  if (playerAteBomb) {
+    game.bomb = null;
+    events.push({ event: 'bombDetonate' });
+    for (const evil of aliveEvils) {
+      evilsToKill.add(evil.id);
+      evilsKilledByBomb.add(evil.id);
+    }
+  } else if (evilAteBombId !== null) {
+    game.bomb = null;
+    events.push({ event: 'bombConsumed' });
+  }
+
   applyPlayerMove(game, playerHead, playerAteFrog);
   if (playerAteFrog) events.push({ event: 'eat' });
 
@@ -452,7 +512,12 @@ export function tick(game) {
   for (const { evil, head } of evilMoves) {
     if (evilsToKill.has(evil.id)) {
       evil.alive = false;
-      events.push({ event: 'evilDie', reason: evilsToRespawn.has(evil.id) ? 'self' : 'collision' });
+      const reason = evilsKilledByBomb.has(evil.id)
+        ? 'bomb'
+        : evilsToRespawn.has(evil.id)
+          ? 'self'
+          : 'collision';
+      events.push({ event: 'evilDie', reason });
       continue;
     }
     const ateFrog = evilAteFrogMap.has(evil.id);
@@ -488,5 +553,8 @@ export function updateAnimations(game, delta) {
   }
   if (game.heartPulse > 0) {
     game.heartPulse = Math.max(0, game.heartPulse - delta * 0.003);
+  }
+  if (game.bombPulse > 0) {
+    game.bombPulse = Math.max(0, game.bombPulse - delta * 0.003);
   }
 }

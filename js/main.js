@@ -19,6 +19,7 @@ import {
   playHeartSfx,
   playMushroomSfx,
   playLoseLifeSfx,
+  playBombDetonateSfx,
   toggleMute,
   isMuted,
 } from './audio.js';
@@ -139,7 +140,7 @@ function handleGameEvent(ev) {
     playEatSfx();
     updateHud();
   } else if (ev.event === 'evilDie') {
-    playEvilDieSfx();
+    if (ev.reason !== 'bomb') playEvilDieSfx();
   } else if (ev.event === 'heartEat') {
     playHeartSfx();
     updateHud();
@@ -149,6 +150,8 @@ function handleGameEvent(ev) {
     playLoseLifeSfx();
     flashLivesDisplay();
     updateHud();
+  } else if (ev.event === 'bombDetonate') {
+    playBombDetonateSfx();
   }
 }
 

@@ -160,6 +160,13 @@ export function playLoseLifeSfx() {
   setTimeout(() => playTone(147, 0.15, 'square', sfxGain, 0.08), 90);
 }
 
+export function playBombDetonateSfx() {
+  ensureContext();
+  playTone(110, 0.15, 'sawtooth', sfxGain, 0.14);
+  setTimeout(() => playTone(55, 0.25, 'sawtooth', sfxGain, 0.1), 80);
+  setTimeout(() => playTone(82, 0.1, 'square', sfxGain, 0.08), 160);
+}
+
 export function playGameOverSfx() {
   ensureContext();
   let offset = 0;

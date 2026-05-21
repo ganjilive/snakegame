@@ -32,7 +32,9 @@ A browser-based retro snake game with a modern pixel aesthetic. No login require
 - **Heart pickups** occasionally appear on empty cells; eating one restores 1 life (max 3)
 - **Falling mushrooms** drop from the top of the grid; eating one shrinks your snake by 1 segment
 - Mushroom at length 1 costs 1 life (same as an evil body hit at length 1)
-- Lives shown as hearts in the HUD; dedicated SFX for heart, mushroom, and life lost
+- **Bomb pickups** briefly appear on empty cells (~30 ticks); player eating one kills all evil snakes
+- Evil snake eating a bomb removes it without dying; untouched bombs expire
+- Lives shown as hearts in the HUD; dedicated SFX for heart, mushroom, life lost, and bomb detonation
 
 ## How to play
 
@@ -43,6 +45,7 @@ A browser-based retro snake game with a modern pixel aesthetic. No login require
 | Use evil against itself | Lure it into its own body — it dies and respawns |
 | Punish body hits | Evil head on your body kills evil and shrinks you by 1 segment |
 | Grab hearts | Restore 1 life when below 3 (hearts spawn occasionally) |
+| Grab bombs | Kill all evil snakes before the bomb expires (~30 ticks) |
 | Dodge mushrooms | Falling mushrooms shrink you by 1; at length 1 they cost 1 life |
 
 ## Collision rules
@@ -58,6 +61,9 @@ A browser-based retro snake game with a modern pixel aesthetic. No login require
 | You eat a heart | +1 life (max 3); no growth or score |
 | You eat a falling mushroom (length > 1) | Lose 1 segment |
 | You eat a falling mushroom (length 1) | Lose 1 life; respawn |
+| You eat a bomb | All evil snakes die; no growth or score |
+| Evil snake eats a bomb | Bomb disappears; evil survives |
+| Bomb timer expires | Bomb vanishes |
 | All lives lost | Game over |
 | Evil runs into its own body | Evil dies; new evil respawns immediately |
 | Two evil heads collide | Both evil snakes die |
@@ -99,9 +105,9 @@ snakegame/
 ├── css/style.css       # Game Boy–style frame and overlays
 └── js/
     ├── main.js         # Input, game loop, HUD, audio hooks
-    ├── game.js         # Rules, collisions, frogs, hearts, mushrooms, evil snakes
+    ├── game.js         # Rules, collisions, frogs, hearts, bombs, mushrooms, evil snakes
     ├── evil-ai.js      # BFS pathfinding and direction scoring
-    ├── renderer.js     # Canvas drawing (player, evil, frogs, hearts, mushrooms)
+    ├── renderer.js     # Canvas drawing (player, evil, frogs, hearts, bombs, mushrooms)
     ├── audio.js        # Web Audio chiptune music and SFX
     └── storage.js      # localStorage high score + mute flag
 ```
@@ -115,7 +121,7 @@ No build step — static files only, suitable for Vercel or any static host.
 | Initial game | `main` | Retro snake, wrap walls, frogs, speed scaling, chiptune audio, local high scores |
 | **v1.0.0** | tag `v1.0.0` on `main` | HUD mute button (`M`), Mario-style death jingle with pitch slides, README |
 | **v2.0.0** | tag `v2.0.0` on `main` | Evil Snake AI, frog visuals, collision/split/respawn rules, evil death SFX, title-screen warning |
-| **v3.0.0** | branch `iteration-3` | 3 lives with respawn, heart pickups, falling mushrooms, lives HUD, new SFX |
+| **v3.0.0** | branch `iteration-3` | 3 lives with respawn, heart pickups, falling mushrooms, timed bombs, lives HUD, new SFX |
 
 ## Deploy to Vercel
 

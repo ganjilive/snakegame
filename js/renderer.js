@@ -17,6 +17,9 @@ const COLORS = {
   mushroomCap: '#8b4513',
   mushroomSpot: '#f5deb3',
   mushroomStem: '#d2b48c',
+  bombBody: '#2a2a2a',
+  bombFuse: '#c8a040',
+  bombSpark: '#ff8844',
 };
 
 let blinkFrame = 0;
@@ -38,6 +41,7 @@ export function render(renderer, game) {
 
   if (game.frog) drawFrog(ctx, game.frog, game.frogPulse);
   if (game.heart) drawHeart(ctx, game.heart, game.heartPulse);
+  if (game.bomb) drawBomb(ctx, game.bomb, game.bombPulse, blinkFrame);
   game.mushrooms.forEach((m) => drawMushroom(ctx, m));
 
   const showPlayer = game.invulnerableTicks <= 0 || blinkFrame % 8 < 4;
@@ -175,4 +179,28 @@ function drawMushroom(ctx, mushroom) {
   ctx.fillStyle = COLORS.mushroomSpot;
   ctx.fillRect(x + pad + 2, y + pad + 2, 3, 3);
   ctx.fillRect(x + pad + capW - 6, y + pad + 3, 2, 2);
+}
+
+function drawBomb(ctx, bomb, pulse, frame) {
+  const x = bomb.x * CELL_SIZE;
+  const y = bomb.y * CELL_SIZE;
+  const urgent = bomb.ticksRemaining <= 10;
+  const blink = urgent && frame % 6 < 3;
+  if (blink) return;
+
+  const scale = 1 + pulse * 0.15;
+  const pad = 3 + (1 - scale) * 2;
+  const size = (CELL_SIZE - pad * 2) * scale;
+  const ox = x + (CELL_SIZE - size) / 2;
+  const oy = y + (CELL_SIZE - size) / 2;
+
+  ctx.fillStyle = COLORS.bombBody;
+  ctx.fillRect(ox + size * 0.15, oy + size * 0.25, size * 0.7, size * 0.65);
+
+  ctx.fillStyle = COLORS.bombFuse;
+  ctx.fillRect(ox + size * 0.55, oy + size * 0.05, size * 0.12, size * 0.22);
+
+  ctx.fillStyle = COLORS.bombSpark;
+  const spark = Math.max(2, size * 0.18);
+  ctx.fillRect(ox + size * 0.52, oy, spark, spark);
 }
