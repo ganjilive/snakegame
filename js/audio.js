@@ -136,6 +136,12 @@ export function playEatSfx() {
   setTimeout(() => playTone(784, 0.1, 'square', sfxGain, 0.1), 60);
 }
 
+export function playEvilDieSfx() {
+  ensureContext();
+  playTone(220, 0.1, 'sawtooth', sfxGain, 0.1);
+  setTimeout(() => playTone(110, 0.15, 'sawtooth', sfxGain, 0.08), 80);
+}
+
 export function playGameOverSfx() {
   ensureContext();
   let offset = 0;

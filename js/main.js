@@ -14,6 +14,7 @@ import {
   stopMusic,
   playEatSfx,
   playGameOverSfx,
+  playEvilDieSfx,
   toggleMute,
   isMuted,
 } from './audio.js';
@@ -159,11 +160,20 @@ function gameLoop(timestamp) {
     if (timestamp - game.lastTick >= game.tickInterval) {
       game.lastTick = timestamp;
       const result = tick(game);
-      if (result?.event === 'eat') {
-        playEatSfx();
-        updateHud();
-      } else if (result?.event === 'gameover') {
-        handleGameOver();
+      if (result) {
+        if (result.event === 'gameover') {
+          handleGameOver();
+        } else {
+          const eventList = result.events ?? (result.event ? [result] : []);
+          for (const ev of eventList) {
+            if (ev.event === 'eat') {
+              playEatSfx();
+              updateHud();
+            } else if (ev.event === 'evilDie') {
+              playEvilDieSfx();
+            }
+          }
+        }
       }
     }
   }
