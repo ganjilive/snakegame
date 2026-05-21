@@ -2,27 +2,60 @@
 
 A browser-based retro snake game with a modern pixel aesthetic. No login required — just open the link and play.
 
+The current playable build is on the **`iteration-2`** branch, which adds an AI opponent (Evil Snake). **`main`** holds the **v1.0.0** release (single-player only).
+
 ## Features
 
-- Classic snake gameplay with wrap-around walls
-- Progressive speed as your score grows
-- Local high score saved in your browser
+### Core (v1.0.0)
+
+- Classic snake on a 20×20 grid with wrap-around walls
+- Frogs as food (+10 score each) with a pulsing pixel frog sprite
+- Progressive speed: every 50 points, tick interval drops by 5 ms (floor 60 ms)
+- Local high score and mute preference saved in `localStorage`
 - Chiptune background music and retro sound effects
 - Dramatic Mario-style game-over jingle
 - Mute toggle via HUD button or `M` key
-- **Evil Snake** — red AI opponent that steals frogs, hunts you, and splits when it grows large enough
 
-## Evil Snake (iteration-2)
+### Evil Snake (iteration-2)
 
-A red AI-controlled snake competes against you:
+- Red AI-controlled opponent(s) that compete for the same frogs
+- Pathfinding AI: BFS toward frogs, hunts your head when within 6 cells, otherwise scores safe moves
+- Steals frogs and grows — player gets priority if both reach the frog on the same tick
+- Self-collision kills the evil snake and **immediately respawns** a new one
+- At **length 10**, an evil snake **splits** in half (tail half moves opposite direction); up to **4** evil snakes on screen
+- Dedicated evil-death sound effect
 
-- Steals frogs and grows — same rules as your snake
-- Wraps around walls like you do
-- **Evil head hits your body** — evil dies, you lose 1 segment (both die if you're length 1)
-- **Your head hits evil** — you die
-- **Head-on-head** — both die
-- **Evil hits itself** — it dies and immediately respawns
-- **Evil reaches length 10** — splits into two evil snakes (max 4 on screen)
+## How to play
+
+| Goal | Detail |
+|---|---|
+| Eat frogs | +10 score; snake grows; game speeds up |
+| Avoid evil | Your head touching any evil segment = game over |
+| Use evil against itself | Lure it into its own body — it dies and respawns |
+| Punish body hits | Evil head on your body kills evil and shrinks you by 1 segment |
+
+## Collision rules
+
+| Situation | Result |
+|---|---|
+| Your head hits your own body | You die |
+| Your head hits evil body or head | You die |
+| Your head hits evil head (head-on) | You die; evil dies |
+| Evil head hits your body | Evil dies; you lose 1 segment |
+| Evil head hits your body while you are length 1 | Both die |
+| Evil head hits your head | You die; evil dies |
+| Evil runs into its own body | Evil dies; new evil respawns immediately |
+| Two evil heads collide | Both evil snakes die |
+| Evil reaches length 10 after eating | Splits into two evil snakes (oldest removed if over cap of 4) |
+
+## Evil Snake AI
+
+Each tick, every living evil snake picks a direction:
+
+1. **Safe moves only** — cannot reverse 180°; avoids immediate self-collision
+2. **Frog chase** — if a frog exists, BFS pathfinding toward it (wrap-aware)
+3. **Hunt** — if your head is within 6 cells (Manhattan, wrap-aware), BFS toward you
+4. **Fallback** — score remaining safe directions (closer to frog/player body = better; avoids player and other evil bodies)
 
 ## Play locally
 
@@ -34,6 +67,13 @@ npx serve .
 
 Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
+To run the Evil Snake build:
+
+```bash
+git checkout iteration-2
+npx serve .
+```
+
 ## Controls
 
 | Key / Action | Effect |
@@ -43,12 +83,38 @@ Then open the URL shown in the terminal (usually `http://localhost:3000`).
 | R / Enter | Restart after game over |
 | M or SOUND button | Toggle mute |
 
+## Project structure
+
+```
+snakegame/
+├── index.html          # Canvas, HUD, start/game-over overlays
+├── css/style.css       # Game Boy–style frame and overlays
+└── js/
+    ├── main.js         # Input, game loop, HUD, audio hooks
+    ├── game.js         # Rules, collisions, frogs, evil snakes, split/respawn
+    ├── evil-ai.js      # BFS pathfinding and direction scoring
+    ├── renderer.js     # Canvas drawing (player, evil, frogs)
+    ├── audio.js        # Web Audio chiptune music and SFX
+    └── storage.js      # localStorage high score + mute flag
+```
+
+No build step — static files only, suitable for Vercel or any static host.
+
+## Development history
+
+| Milestone | Branch / tag | Summary |
+|---|---|---|
+| Initial game | `main` | Retro snake, wrap walls, frogs, speed scaling, chiptune audio, local high scores |
+| **v1.0.0** | tag `v1.0.0` on `main` | HUD mute button (`M`), Mario-style death jingle with pitch slides, README |
+| **Iteration 2** | `iteration-2` | Evil Snake AI, frog visuals, collision/split/respawn rules, evil death SFX, title-screen warning |
+
 ## Deploy to Vercel
 
 1. Push this repo to GitHub.
 2. Import the repo at [vercel.com](https://vercel.com).
 3. Framework preset: **Other** (static site, no build step).
-4. Deploy and share the URL with friends.
+4. Set the production branch to `main` or `iteration-2` depending on which version you want live.
+5. Deploy and share the URL with friends.
 
 ## License
 
