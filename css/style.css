@@ -33,11 +33,23 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   font-size: 10px;
   color: #c8d878;
   margin-bottom: 12px;
   padding: 0 4px;
   letter-spacing: 1px;
+}
+
+#lives-display {
+  font-size: 12px;
+  color: #ff6688;
+  letter-spacing: 2px;
+  transition: opacity 0.1s ease;
+}
+
+#lives-display.flash {
+  opacity: 0.3;
 }
 
 #mute-btn {

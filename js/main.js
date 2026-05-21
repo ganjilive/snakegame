@@ -5,6 +5,7 @@ import {
   setDirection,
   tick,
   updateAnimations,
+  MAX_LIVES,
 } from './game.js';
 import { createRenderer, render } from './renderer.js';
 import { getHighScore, saveHighScore } from './storage.js';
@@ -15,6 +16,10 @@ import {
   playEatSfx,
   playGameOverSfx,
   playEvilDieSfx,
+  playHeartSfx,
+  playMushroomSfx,
+  playLoseLifeSfx,
+  playBombDetonateSfx,
   toggleMute,
   isMuted,
 } from './audio.js';
@@ -23,6 +28,7 @@ const canvas = document.getElementById('game-canvas');
 const startScreen = document.getElementById('start-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
 const scoreDisplay = document.getElementById('score-display');
+const livesDisplay = document.getElementById('lives-display');
 const highScoreDisplay = document.getElementById('high-score-display');
 const finalScoreDisplay = document.getElementById('final-score');
 const newHighScoreEl = document.getElementById('new-high-score');
@@ -50,7 +56,14 @@ const KEY_MAP = {
 
 function updateHud() {
   scoreDisplay.textContent = `SCORE: ${game.score}`;
+  livesDisplay.textContent =
+    '♥'.repeat(game.lives) + '♡'.repeat(MAX_LIVES - game.lives);
   highScoreDisplay.textContent = `HI: ${getHighScore()}`;
+}
+
+function flashLivesDisplay() {
+  livesDisplay.classList.add('flash');
+  setTimeout(() => livesDisplay.classList.remove('flash'), 400);
 }
 
 function updateMuteButton() {
@@ -122,6 +135,26 @@ function handleGameOver() {
   showGameoverScreen(isNewHighScore);
 }
 
+function handleGameEvent(ev) {
+  if (ev.event === 'eat') {
+    playEatSfx();
+    updateHud();
+  } else if (ev.event === 'evilDie') {
+    if (ev.reason !== 'bomb') playEvilDieSfx();
+  } else if (ev.event === 'heartEat') {
+    playHeartSfx();
+    updateHud();
+  } else if (ev.event === 'mushroomHit') {
+    playMushroomSfx();
+  } else if (ev.event === 'loseLife') {
+    playLoseLifeSfx();
+    flashLivesDisplay();
+    updateHud();
+  } else if (ev.event === 'bombDetonate') {
+    playBombDetonateSfx();
+  }
+}
+
 function onKeyDown(e) {
   if (e.key === 'm' || e.key === 'M') {
     handleMuteToggle();
@@ -166,12 +199,7 @@ function gameLoop(timestamp) {
         } else {
           const eventList = result.events ?? (result.event ? [result] : []);
           for (const ev of eventList) {
-            if (ev.event === 'eat') {
-              playEatSfx();
-              updateHud();
-            } else if (ev.event === 'evilDie') {
-              playEvilDieSfx();
-            }
+            handleGameEvent(ev);
           }
         }
       }

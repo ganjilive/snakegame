@@ -12,7 +12,17 @@ const COLORS = {
   evilHead: '#cc2222',
   evilBody: '#991111',
   evilEye: '#ffcccc',
+  heart: '#cc2244',
+  heartHighlight: '#ff6688',
+  mushroomCap: '#8b4513',
+  mushroomSpot: '#f5deb3',
+  mushroomStem: '#d2b48c',
+  bombBody: '#2a2a2a',
+  bombFuse: '#c8a040',
+  bombSpark: '#ff8844',
 };
+
+let blinkFrame = 0;
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');
@@ -21,6 +31,7 @@ export function createRenderer(canvas) {
 
 export function render(renderer, game) {
   const { ctx } = renderer;
+  blinkFrame += 1;
 
   ctx.fillStyle = COLORS.background;
   ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
@@ -29,7 +40,14 @@ export function render(renderer, game) {
   drawBorder(ctx);
 
   if (game.frog) drawFrog(ctx, game.frog, game.frogPulse);
-  drawSnake(ctx, game.snake, COLORS.snakeHead, COLORS.snakeBody, COLORS.snakeEye);
+  if (game.heart) drawHeart(ctx, game.heart, game.heartPulse);
+  if (game.bomb) drawBomb(ctx, game.bomb, game.bombPulse, blinkFrame);
+  game.mushrooms.forEach((m) => drawMushroom(ctx, m));
+
+  const showPlayer = game.invulnerableTicks <= 0 || blinkFrame % 8 < 4;
+  if (showPlayer) {
+    drawSnake(ctx, game.snake, COLORS.snakeHead, COLORS.snakeBody, COLORS.snakeEye);
+  }
 
   game.evilSnakes
     .filter((e) => e.alive)
@@ -115,4 +133,74 @@ function drawFrog(ctx, frog, pulse) {
   const eye = Math.max(2, size * 0.2);
   ctx.fillRect(ox + size * 0.2, oy + size * 0.25, eye, eye);
   ctx.fillRect(ox + size * 0.6, oy + size * 0.25, eye, eye);
+}
+
+function drawHeart(ctx, heart, pulse) {
+  const x = heart.x * CELL_SIZE;
+  const y = heart.y * CELL_SIZE;
+  const scale = 1 + pulse * 0.15;
+  const pad = 3 + (1 - scale) * 2;
+  const size = (CELL_SIZE - pad * 2) * scale;
+  const ox = x + (CELL_SIZE - size) / 2;
+  const oy = y + (CELL_SIZE - size) / 2;
+  const unit = size / 4;
+
+  ctx.fillStyle = COLORS.heart;
+  ctx.fillRect(ox + unit * 0.5, oy, unit, unit);
+  ctx.fillRect(ox + unit * 2.5, oy, unit, unit);
+  ctx.fillRect(ox, oy + unit, unit * 4, unit * 2);
+  ctx.fillRect(ox + unit, oy + unit * 3, unit * 2, unit);
+
+  ctx.fillStyle = COLORS.heartHighlight;
+  const dot = Math.max(1, unit * 0.4);
+  ctx.fillRect(ox + unit * 0.8, oy + unit * 0.3, dot, dot);
+}
+
+function drawMushroom(ctx, mushroom) {
+  const x = mushroom.x * CELL_SIZE;
+  const y = mushroom.y * CELL_SIZE;
+  const pad = 3;
+  const capW = CELL_SIZE - pad * 2;
+  const capH = 8;
+  const stemW = 6;
+  const stemH = 6;
+
+  ctx.fillStyle = COLORS.mushroomStem;
+  ctx.fillRect(
+    x + (CELL_SIZE - stemW) / 2,
+    y + CELL_SIZE - pad - stemH,
+    stemW,
+    stemH,
+  );
+
+  ctx.fillStyle = COLORS.mushroomCap;
+  ctx.fillRect(x + pad, y + pad, capW, capH);
+
+  ctx.fillStyle = COLORS.mushroomSpot;
+  ctx.fillRect(x + pad + 2, y + pad + 2, 3, 3);
+  ctx.fillRect(x + pad + capW - 6, y + pad + 3, 2, 2);
+}
+
+function drawBomb(ctx, bomb, pulse, frame) {
+  const x = bomb.x * CELL_SIZE;
+  const y = bomb.y * CELL_SIZE;
+  const urgent = bomb.ticksRemaining <= 10;
+  const blink = urgent && frame % 6 < 3;
+  if (blink) return;
+
+  const scale = 1 + pulse * 0.15;
+  const pad = 3 + (1 - scale) * 2;
+  const size = (CELL_SIZE - pad * 2) * scale;
+  const ox = x + (CELL_SIZE - size) / 2;
+  const oy = y + (CELL_SIZE - size) / 2;
+
+  ctx.fillStyle = COLORS.bombBody;
+  ctx.fillRect(ox + size * 0.15, oy + size * 0.25, size * 0.7, size * 0.65);
+
+  ctx.fillStyle = COLORS.bombFuse;
+  ctx.fillRect(ox + size * 0.55, oy + size * 0.05, size * 0.12, size * 0.22);
+
+  ctx.fillStyle = COLORS.bombSpark;
+  const spark = Math.max(2, size * 0.18);
+  ctx.fillRect(ox + size * 0.52, oy, spark, spark);
 }
