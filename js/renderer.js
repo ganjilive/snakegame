@@ -7,7 +7,11 @@ const COLORS = {
   snakeBody: '#2a2a2a',
   snakeHead: '#1a1a1a',
   snakeEye: '#c8d878',
-  food: '#2a2a2a',
+  frogBody: '#2a5a2a',
+  frogEye: '#8fd48f',
+  evilHead: '#cc2222',
+  evilBody: '#991111',
+  evilEye: '#ffcccc',
 };
 
 export function createRenderer(canvas) {
@@ -24,12 +28,14 @@ export function render(renderer, game) {
   drawGrid(ctx);
   drawBorder(ctx);
 
-  if (game.food) drawFood(ctx, game.food, game.foodPulse);
-  drawSnake(ctx, game.snake);
+  if (game.frog) drawFrog(ctx, game.frog, game.frogPulse);
+  drawSnake(ctx, game.snake, COLORS.snakeHead, COLORS.snakeBody, COLORS.snakeEye);
 
-  if (game.state === 'playing' || game.state === 'gameover') {
-    // game canvas only; HUD is HTML
-  }
+  game.evilSnakes
+    .filter((e) => e.alive)
+    .forEach((evil) => {
+      drawSnake(ctx, evil.snake, COLORS.evilHead, COLORS.evilBody, COLORS.evilEye);
+    });
 }
 
 function drawGrid(ctx) {
@@ -54,7 +60,7 @@ function drawBorder(ctx) {
   ctx.strokeRect(1.5, 1.5, CANVAS_SIZE - 3, CANVAS_SIZE - 3);
 }
 
-function drawSnake(ctx, snake) {
+function drawSnake(ctx, snake, headColor, bodyColor, eyeColor) {
   snake.forEach((segment, index) => {
     const x = segment.x * CELL_SIZE;
     const y = segment.y * CELL_SIZE;
@@ -62,14 +68,17 @@ function drawSnake(ctx, snake) {
     const size = CELL_SIZE - padding * 2;
 
     if (index === 0) {
-      ctx.fillStyle = COLORS.snakeHead;
+      ctx.fillStyle = headColor;
       ctx.fillRect(x + padding, y + padding, size, size);
 
       const prev = snake[1];
       if (prev) {
-        const dx = segment.x - prev.x;
-        const dy = segment.y - prev.y;
-        ctx.fillStyle = COLORS.snakeEye;
+        let dx = segment.x - prev.x;
+        let dy = segment.y - prev.y;
+        if (Math.abs(dx) > 1) dx = dx > 0 ? -1 : 1;
+        if (Math.abs(dy) > 1) dy = dy > 0 ? -1 : 1;
+
+        ctx.fillStyle = eyeColor;
         const eyeSize = 3;
         const eyeOffset = 5;
 
@@ -84,31 +93,26 @@ function drawSnake(ctx, snake) {
         }
       }
     } else {
-      ctx.fillStyle = COLORS.snakeBody;
+      ctx.fillStyle = bodyColor;
       ctx.fillRect(x + padding, y + padding, size, size);
     }
   });
 }
 
-function drawFood(ctx, food, pulse) {
-  const cx = food.x * CELL_SIZE + CELL_SIZE / 2;
-  const cy = food.y * CELL_SIZE + CELL_SIZE / 2;
-  const scale = 1 + pulse * 0.3;
-  const half = (CELL_SIZE / 2 - 2) * scale;
+function drawFrog(ctx, frog, pulse) {
+  const x = frog.x * CELL_SIZE;
+  const y = frog.y * CELL_SIZE;
+  const scale = 1 + pulse * 0.15;
+  const pad = 2 + (1 - scale) * 2;
+  const size = (CELL_SIZE - pad * 2) * scale;
+  const ox = x + (CELL_SIZE - size) / 2;
+  const oy = y + (CELL_SIZE - size) / 2;
 
-  ctx.fillStyle = COLORS.food;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy - half);
-  ctx.lineTo(cx + half, cy);
-  ctx.lineTo(cx, cy + half);
-  ctx.lineTo(cx - half, cy);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = COLORS.frogBody;
+  ctx.fillRect(ox, oy, size, size);
 
-  const dotSize = 2 * scale;
-  ctx.fillRect(cx - dotSize / 2, cy - dotSize / 2, dotSize, dotSize);
-  ctx.fillRect(cx - dotSize / 2, cy - half + 1, dotSize, dotSize);
-  ctx.fillRect(cx - dotSize / 2, cy + half - dotSize - 1, dotSize, dotSize);
-  ctx.fillRect(cx - half + 1, cy - dotSize / 2, dotSize, dotSize);
-  ctx.fillRect(cx + half - dotSize - 1, cy - dotSize / 2, dotSize, dotSize);
+  ctx.fillStyle = COLORS.frogEye;
+  const eye = Math.max(2, size * 0.2);
+  ctx.fillRect(ox + size * 0.2, oy + size * 0.25, eye, eye);
+  ctx.fillRect(ox + size * 0.6, oy + size * 0.25, eye, eye);
 }
