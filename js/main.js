@@ -25,6 +25,7 @@ const scoreDisplay = document.getElementById('score-display');
 const highScoreDisplay = document.getElementById('high-score-display');
 const finalScoreDisplay = document.getElementById('final-score');
 const newHighScoreEl = document.getElementById('new-high-score');
+const muteBtn = document.getElementById('mute-btn');
 
 const renderer = createRenderer(canvas);
 const game = createGame();
@@ -49,6 +50,25 @@ const KEY_MAP = {
 function updateHud() {
   scoreDisplay.textContent = `SCORE: ${game.score}`;
   highScoreDisplay.textContent = `HI: ${getHighScore()}`;
+}
+
+function updateMuteButton() {
+  const muted = isMuted();
+  muteBtn.textContent = muted ? 'SOUND OFF (M)' : 'SOUND ON (M)';
+  muteBtn.classList.toggle('muted', muted);
+  muteBtn.setAttribute('aria-pressed', String(muted));
+  muteBtn.setAttribute('aria-label', muted ? 'Unmute sound (M)' : 'Mute sound (M)');
+}
+
+function handleMuteToggle() {
+  const nowMuted = toggleMute();
+  if (nowMuted) {
+    musicPlaying = false;
+  } else if (game.state === 'playing') {
+    musicPlaying = true;
+    startMusic();
+  }
+  updateMuteButton();
 }
 
 function showStartScreen() {
@@ -103,13 +123,7 @@ function handleGameOver() {
 
 function onKeyDown(e) {
   if (e.key === 'm' || e.key === 'M') {
-    const nowMuted = toggleMute();
-    if (nowMuted) {
-      musicPlaying = false;
-    } else if (game.state === 'playing') {
-      musicPlaying = true;
-      startMusic();
-    }
+    handleMuteToggle();
     return;
   }
 
@@ -159,7 +173,9 @@ function gameLoop(timestamp) {
 }
 
 updateHud();
+updateMuteButton();
 resetGame(game);
 render(renderer, game);
 window.addEventListener('keydown', onKeyDown);
+muteBtn.addEventListener('click', handleMuteToggle);
 requestAnimationFrame(gameLoop);

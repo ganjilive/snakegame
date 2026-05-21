@@ -41,19 +41,66 @@ function applyMute() {
 
 function playTone(frequency, duration, type = 'square', gainNode = sfxGain, volume = 0.15) {
   if (!audioCtx || muted) return;
+  playScheduledTone(frequency, 0, duration, type, gainNode, volume);
+}
+
+function playScheduledTone(
+  frequency,
+  startOffset,
+  duration,
+  type = 'square',
+  gainNode = sfxGain,
+  volume = 0.15,
+) {
+  if (!audioCtx || muted) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = type;
   osc.frequency.value = frequency;
-  gain.gain.value = volume;
   osc.connect(gain);
   gain.connect(gainNode);
-  const now = audioCtx.currentTime;
-  gain.gain.setValueAtTime(volume, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-  osc.start(now);
-  osc.stop(now + duration);
+  const start = audioCtx.currentTime + startOffset;
+  gain.gain.setValueAtTime(volume, start);
+  gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+  osc.start(start);
+  osc.stop(start + duration);
 }
+
+function playScheduledSlide(
+  startFreq,
+  endFreq,
+  startOffset,
+  duration,
+  type = 'square',
+  gainNode = sfxGain,
+  volume = 0.14,
+) {
+  if (!audioCtx || muted) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.connect(gain);
+  gain.connect(gainNode);
+  const start = audioCtx.currentTime + startOffset;
+  osc.frequency.setValueAtTime(startFreq, start);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(endFreq, 1), start + duration);
+  gain.gain.setValueAtTime(volume, start);
+  gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+  osc.start(start);
+  osc.stop(start + duration);
+}
+
+const MARIO_DEATH = [
+  { freq: 659, duration: 0.15 },
+  { freq: 523, duration: 0.15 },
+  { freq: 392, duration: 0.15 },
+  { freq: 330, duration: 0.15 },
+  { freq: 392, duration: 0.12 },
+  { freq: 330, duration: 0.12 },
+  { freq: 262, duration: 0.12 },
+  { freq: 196, endFreq: 130, duration: 0.4, slide: true },
+  { freq: 131, endFreq: 65, duration: 0.6, slide: true },
+];
 
 function playMusicStep() {
   if (!audioCtx || muted) return;
@@ -91,10 +138,26 @@ export function playEatSfx() {
 
 export function playGameOverSfx() {
   ensureContext();
-  const notes = [392, 330, 262, 196];
-  notes.forEach((freq, i) => {
-    setTimeout(() => playTone(freq, 0.2, 'sawtooth', sfxGain, 0.12), i * 150);
-  });
+  let offset = 0;
+  const volume = 0.14;
+  for (const note of MARIO_DEATH) {
+    if (note.slide) {
+      playScheduledSlide(note.freq, note.endFreq, offset, note.duration, 'square', sfxGain, volume);
+      playScheduledSlide(
+        note.freq / 2,
+        note.endFreq / 2,
+        offset,
+        note.duration,
+        'triangle',
+        sfxGain,
+        0.06,
+      );
+    } else {
+      playScheduledTone(note.freq, offset, note.duration, 'square', sfxGain, volume);
+      playScheduledTone(note.freq / 2, offset, note.duration, 'triangle', sfxGain, 0.06);
+    }
+    offset += note.duration;
+  }
 }
 
 export function toggleMute() {
@@ -104,8 +167,6 @@ export function toggleMute() {
   applyMute();
   if (muted) {
     stopMusic();
-  } else if (musicInterval === null) {
-    startMusic();
   }
   return muted;
 }
