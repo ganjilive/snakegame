@@ -136,6 +136,13 @@ body {
   font-size: clamp(7px, 1.8vw, 8px);
 }
 
+#start-screen .version {
+  margin-top: auto;
+  font-size: clamp(6px, 1.5vw, 7px);
+  color: #6a6a6a;
+  letter-spacing: 1px;
+}
+
 #new-high-score {
   color: #8b4513;
   animation: pulse 0.6s ease-in-out infinite alternate;

@@ -315,7 +315,6 @@ export function tick(game) {
     game.invulnerableTicks -= 1;
   }
 
-  updateMushrooms(game);
   updateBomb(game);
   trySpawnMushroom(game);
   trySpawnHeart(game);
@@ -384,6 +383,8 @@ export function tick(game) {
       events.push({ event: 'mushroomHit' });
     }
   }
+
+  updateMushrooms(game);
 
   if (!invulnerable) {
     const playerBodyCheck = playerAteFrog ? game.snake : game.snake.slice(0, -1);
