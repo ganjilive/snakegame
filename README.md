@@ -2,7 +2,7 @@
 
 A browser-based retro snake game with a modern pixel aesthetic. No login required — just open the link and play.
 
-The current playable build is on the **`iteration-2`** branch, which adds an AI opponent (Evil Snake). **`main`** holds the **v1.0.0** release (single-player only).
+**Latest release: [v2.0.0](https://github.com/ganjilive/snakegame/releases/tag/v2.0.0)** on `main` — includes the Evil Snake AI opponent. See [v1.0.0](https://github.com/ganjilive/snakegame/releases/tag/v1.0.0) for the original single-player build.
 
 ## Features
 
@@ -16,7 +16,7 @@ The current playable build is on the **`iteration-2`** branch, which adds an AI 
 - Dramatic Mario-style game-over jingle
 - Mute toggle via HUD button or `M` key
 
-### Evil Snake (iteration-2)
+### Evil Snake (v2.0.0)
 
 - Red AI-controlled opponent(s) that compete for the same frogs
 - Pathfinding AI: BFS toward frogs, hunts your head when within 6 cells, otherwise scores safe moves
@@ -67,13 +67,6 @@ npx serve .
 
 Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
-To run the Evil Snake build:
-
-```bash
-git checkout iteration-2
-npx serve .
-```
-
 ## Controls
 
 | Key / Action | Effect |
@@ -106,15 +99,14 @@ No build step — static files only, suitable for Vercel or any static host.
 |---|---|---|
 | Initial game | `main` | Retro snake, wrap walls, frogs, speed scaling, chiptune audio, local high scores |
 | **v1.0.0** | tag `v1.0.0` on `main` | HUD mute button (`M`), Mario-style death jingle with pitch slides, README |
-| **Iteration 2** | `iteration-2` | Evil Snake AI, frog visuals, collision/split/respawn rules, evil death SFX, title-screen warning |
+| **v2.0.0** | tag `v2.0.0` on `main` | Evil Snake AI, frog visuals, collision/split/respawn rules, evil death SFX, title-screen warning |
 
 ## Deploy to Vercel
 
 1. Push this repo to GitHub.
 2. Import the repo at [vercel.com](https://vercel.com).
 3. Framework preset: **Other** (static site, no build step).
-4. Set the production branch to `main` or `iteration-2` depending on which version you want live.
-5. Deploy and share the URL with friends.
+4. Deploy from `main` and share the URL with friends.
 
 ## License
 
