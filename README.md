@@ -115,12 +115,25 @@ Then open the URL shown in the terminal (usually `http://localhost:3000`).
 
 ## Controls
 
+### Desktop (keyboard)
+
 | Key / Action | Effect |
 |---|---|
 | Arrow keys / WASD | Move |
 | Any key | Start from title screen |
 | R / Enter | Restart after game over |
 | M or SOUND button | Toggle mute |
+
+### Mobile (touch)
+
+On screens 767px wide or narrower, the game fills the phone screen with on-screen controls:
+
+| Action | Effect |
+|---|---|
+| START button | Start from title screen |
+| RESTART button | Restart after game over |
+| On-screen D-pad | Move |
+| SOUND button | Toggle mute |
 
 ## Project structure
 

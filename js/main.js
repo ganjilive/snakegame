@@ -33,6 +33,9 @@ const highScoreDisplay = document.getElementById('high-score-display');
 const finalScoreDisplay = document.getElementById('final-score');
 const newHighScoreEl = document.getElementById('new-high-score');
 const muteBtn = document.getElementById('mute-btn');
+const startBtn = document.getElementById('start-btn');
+const restartBtn = document.getElementById('restart-btn');
+const dpadButtons = document.querySelectorAll('.dpad-btn');
 
 const renderer = createRenderer(canvas);
 const game = createGame();
@@ -155,6 +158,17 @@ function handleGameEvent(ev) {
   }
 }
 
+function applyDirection(dir) {
+  if (game.state === 'playing' && dir) {
+    setDirection(game, dir);
+  }
+}
+
+function handleDirectionInput(dir) {
+  if (!dir) return;
+  applyDirection(dir);
+}
+
 function onKeyDown(e) {
   if (e.key === 'm' || e.key === 'M') {
     handleMuteToggle();
@@ -181,6 +195,11 @@ function onKeyDown(e) {
     e.preventDefault();
     setDirection(game, KEY_MAP[e.key]);
   }
+}
+
+function onDpadPointerDown(e) {
+  e.preventDefault();
+  handleDirectionInput(e.currentTarget.dataset.dir);
 }
 
 function gameLoop(timestamp) {
@@ -216,4 +235,13 @@ resetGame(game);
 render(renderer, game);
 window.addEventListener('keydown', onKeyDown);
 muteBtn.addEventListener('click', handleMuteToggle);
+startBtn.addEventListener('click', () => {
+  if (game.state === 'start') beginGame();
+});
+restartBtn.addEventListener('click', () => {
+  if (game.state === 'gameover') restartGame();
+});
+dpadButtons.forEach((btn) => {
+  btn.addEventListener('pointerdown', onDpadPointerDown);
+});
 requestAnimationFrame(gameLoop);

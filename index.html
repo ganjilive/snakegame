@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Retro Snake</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,20 +22,30 @@
         <canvas id="game-canvas" width="400" height="400"></canvas>
         <div id="start-screen" class="overlay">
           <h1>RETRO SNAKE</h1>
-          <p class="blink">PRESS ANY KEY TO START</p>
-          <p class="hint">ARROWS / WASD TO MOVE</p>
+          <p class="hint desktop-only blink">PRESS ANY KEY TO START</p>
+          <button id="start-btn" type="button" class="mobile-action-btn">START</button>
+          <p class="hint desktop-only">ARROWS / WASD TO MOVE</p>
+          <p class="hint mobile-only">USE D-PAD TO MOVE</p>
           <p class="hint">WATCH OUT FOR THE EVIL SNAKE</p>
           <p class="hint">HEARTS RESTORE LIVES — MUSHROOMS SHRINK YOU</p>
           <p class="hint">BOMBS KILL ALL EVIL — BUT THEY VANISH FAST</p>
-          <p class="hint">CLICK SOUND OR PRESS M TO MUTE</p>
+          <p class="hint desktop-only">CLICK SOUND OR PRESS M TO MUTE</p>
+          <p class="hint mobile-only">TAP SOUND TO MUTE</p>
           <p class="version">v3.0.0</p>
         </div>
         <div id="gameover-screen" class="overlay hidden">
           <h2>GAME OVER</h2>
           <p id="final-score">SCORE: 0</p>
           <p id="new-high-score" class="hidden">NEW HIGH SCORE!</p>
-          <p class="blink">PRESS R TO RESTART</p>
+          <p class="hint desktop-only blink">PRESS R TO RESTART</p>
+          <button id="restart-btn" type="button" class="mobile-action-btn">RESTART</button>
         </div>
+      </div>
+      <div class="dpad" aria-label="Direction controls">
+        <button type="button" class="dpad-btn dpad-up" data-dir="UP" aria-label="Move up">▲</button>
+        <button type="button" class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Move left">◀</button>
+        <button type="button" class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Move right">▶</button>
+        <button type="button" class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Move down">▼</button>
       </div>
     </div>
   </div>
