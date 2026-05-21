@@ -142,6 +142,24 @@ export function playEvilDieSfx() {
   setTimeout(() => playTone(110, 0.15, 'sawtooth', sfxGain, 0.08), 80);
 }
 
+export function playHeartSfx() {
+  ensureContext();
+  playTone(523, 0.08, 'square', sfxGain, 0.1);
+  setTimeout(() => playTone(784, 0.1, 'square', sfxGain, 0.12), 70);
+}
+
+export function playMushroomSfx() {
+  ensureContext();
+  playTone(330, 0.1, 'triangle', sfxGain, 0.1);
+  setTimeout(() => playTone(220, 0.12, 'triangle', sfxGain, 0.08), 80);
+}
+
+export function playLoseLifeSfx() {
+  ensureContext();
+  playTone(196, 0.12, 'square', sfxGain, 0.1);
+  setTimeout(() => playTone(147, 0.15, 'square', sfxGain, 0.08), 90);
+}
+
 export function playGameOverSfx() {
   ensureContext();
   let offset = 0;
